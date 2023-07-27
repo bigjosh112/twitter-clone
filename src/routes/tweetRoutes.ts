@@ -28,7 +28,13 @@ router.post('/create', async (req, res) => {
 //list tweet
 router.get('/get-all', async (req, res) => {
     try {
-       const result = await prisma.tweet.findMany();
+       const result = await prisma.tweet.findMany({include: 
+        {
+            user: {
+                select: {
+                    id: true, name: true, username:true, image: true
+                }
+            }}});
        res.status(201).json(result)
     } catch (error) {
         res.status(404).json({error: "Unable to get Tweets"})
