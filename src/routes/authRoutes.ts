@@ -4,9 +4,10 @@ import { Prisma } from "@prisma/client";
 import jwt from "jsonwebtoken";
 
 
+
 const EMAIL_TOKEN_EXPIRATION_MINUTES = 10;
 const AUTHENTICATION_EXPIRATION_HOURS = 12;
-const JWT_SECRET = "SERCRETBABA"
+const JWT_SECRET = process.env.JWT_SECRET ||"SERCRETBABA"
 
 
 
