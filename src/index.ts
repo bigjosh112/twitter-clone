@@ -9,7 +9,7 @@ const app = express();
 app.use(express.json());
 app.use('/user',userRoutes);
 app.use('/tweet',tweetRoutes);
-app.use(authRoutes);
+app.use('/auth', authRoutes);
 
 app.get('/', (req, res) => {
     res.send('Hello world!');

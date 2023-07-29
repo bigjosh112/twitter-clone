@@ -1,28 +1,57 @@
 import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
 import { Prisma } from "@prisma/client";
+import jwt from "jsonwebtoken";
+import { stringify } from "querystring";
 
 const router = Router();
 const prisma = new PrismaClient();
+const JWT_SECRET = "SERCRETBABA";
 
 
 
 //create tweet
 router.post('/create', async (req, res) => {
-    const {content, image, userId} = req.body;
+    const {content, image} = req.body;
 
-    try {
-        const result = await prisma.tweet.create({
-            data: {
-                content,
-                image,
-                userId
-            }
-        })
-        res.status(201).json(result)
-    } catch (error) {
-        res.status(501).json({error: "Tweet not created"})
+    // Authentication
+  const authHeader = req.headers['authorization'];
+  const jwtToken = authHeader?.split(' ')[1];
+  if (!jwtToken) {
+    return res.sendStatus(401);
+  }
+  // decode the jwt token
+  try {
+    const payload = ( jwt.verify(jwtToken, JWT_SECRET)) as {
+        tokenId: number;
+    };
+    
+    const dbToken = await prisma.token.findUnique({
+        where: {id: payload.tokenId},
+        include: { user: true},
+    });
+    if(!dbToken?.valid || dbToken?.expiration < new Date()){
+        return res.status(401).json({error: "API token expired"})
     }
+
+    } catch (error) {
+        res.sendStatus(401);
+    }
+
+    res.sendStatus(200);
+
+    // try {
+    //     const result = await prisma.tweet.create({
+    //         data: {
+    //             content,
+    //             image,
+    //             userId
+    //         }
+    //     })
+    //     res.status(201).json(result)
+    // } catch (error) {
+    //     res.status(501).json({error: "Tweet not created"})
+    // }
 })
 
 //list tweet
